@@ -86,11 +86,10 @@ def run_demo(net, image_provider, height_size, cpu, smooth):
     stride = 8
     upsample_ratio = 4
     num_keypoints = Pose.num_kpts
-    previous_poses = []
     delay = 1
 
     fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
-    out = cv2.VideoWriter('output.avi', fourcc, 20.0, (1920, 1080))
+    out = cv2.VideoWriter('output.avi', fourcc, 20.0, size)
 
     for img in image_provider:
         orig_img = img.copy()
@@ -125,8 +124,8 @@ def run_demo(net, image_provider, height_size, cpu, smooth):
         cv2.putText(img, 'red    : right', (12, 56), cv2.FONT_HERSHEY_COMPLEX, 0.5,(0, 0, 0), 1)
         cv2.putText(img, 'yellow : left', (12, 76), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 0), 1)
         cv2.imshow('Lightweight Human Pose Estimation Python Demo', img)
-
         out.write(img)
+
         key = cv2.waitKey(delay)
         if key == 27:  # esc
             out.release()
@@ -163,5 +162,9 @@ if __name__ == '__main__':
     frame_provider = ImageReader(args.images)
     if args.video != '':
         frame_provider = VideoReader(args.video)
+        capture = cv2.VideoCapture(args.video)
+        global size
+        size = (int(capture.get(cv2.CAP_PROP_FRAME_WIDTH)), int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+        print(size)
 
     run_demo(net, frame_provider, args.height_size, args.cpu, args.smooth)
